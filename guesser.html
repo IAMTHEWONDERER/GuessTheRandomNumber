@@ -29,18 +29,15 @@
             </div>
             
             <div class="scoreBoard">
-
-                <p id="outputText" class="output-text">
-                </p>
-                <p id="attempNum" class="output-text">
-                    
-                </p>
                 <h3 class="scored">Current Score: <span id="score">0</span></h3>
                 <h3 class="scored">High Score: <span id="highScore">0</span></h3>
             </div>
             <div class="scores">
-                <button class="reset" onclick="reset()">Reset</button>
-                <button class="hint" onclick="showHint()">Hint</button>
+                <button class="reset" id="reset-button" onclick="reset()">Reset</button>
+                <button class="hint" id="hint-button" onclick="showHint()">Hint</button>
+                <p id="outputText" class="output-text">
+                </p>
+                <p id="attempNum" class="output-text">
             </div>
         </div>
         

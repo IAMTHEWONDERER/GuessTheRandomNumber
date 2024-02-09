@@ -26,15 +26,21 @@ function generateRandomNumber() {
             randomNumber = Math.floor(Math.random() * n) + 1;
             document.getElementById("nValue").textContent = n;
             document.getElementById("score").textContent = score;
-            if(highScore > score){
-                highScore = score;
+            highScore == score;
                 document.getElementById("highScore").textContent = highScore;
-            }
             return;
         }
     } else {
         outputText.textContent = "You have run out of attempts. The number was " + randomNumber;
     }
 }
-
+function reset() {
+    attempt = 3;
+    score = 0;
+    n = 10;
+    randomNumber = Math.floor(Math.random() * n) + 1;
+    document.getElementById("nValue").textContent = n;
+    outputText.textContent = "Guess a random number between 1 and " + n;
+    document.getElementById("score").textContent = 0;
+}
 generateRandomNumber();
