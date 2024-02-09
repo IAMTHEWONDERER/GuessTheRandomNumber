@@ -5,39 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RNGguesser</title>
     <link rel="stylesheet" href="guesser.css">
+    <script src="guesser.js"></script>
 </head>
 <body>
     <div class="container">
-        <div class="interface">
-            <h2 class="textElement"> RNG Guesser <i class="fa-solid fa-file-pen"></i></h2>
-            <h3 class="textElement"> Guess a random number between 1 and n</h3>
-            <div class="row">
-                <input type="text" id="input-box" placeholder="Guess the number">
-                <button onclick="addTask()" class="btn">Guess</button>
-            </div>
-            <ul>
-
-            </ul>
-            <div class="scoreBoard">
-                <h3>Score: <span id="score">0</span></h3>
-                <h3>High Score: <span id="highScore">0</span></h3>
-            </div>
-            <div class="scores">
-                <button onclick="reset()">Reset</button>
-                <button onclick="showHint()">Hint</button>
-            </div>
-        </div>
         <div class="rulesXterms">
             <div class="terms">
                 <h3 class="rules">Rules of the game</h3>
-                <ul>
+                <ol>
                    <li class="rules para">You have 3 tries per number</li> 
                    <li class="rules para">If you guess the number at your first try, you get x5 multiplier of your score, x2 multiplier on your second try and x1 multiplier on your Third and last try</li>
                    <li class="rules para">you also gain more points based on how hard the level isyou also gain more points based on how hard the level is</li>
-                </ul>
+                </ol>
                 <h4 class="Happy">Happy Guessing!</h4>
             </div>
         </div>
+        <div class="interface">
+            <h2 class="textElement"> RNG Guesser <i class="fa-solid fa-file-pen"></i></h2>
+            <h3 class="textElement" id="guessText">Guess a random number between 1 and  <span id="nValue">&nbsp; 10 </span></h3>     
+                   <div class="row">
+                <input type="text" id="input-box" placeholder="Guess the number">
+                <button onclick="generateRandomNumber()" class="btn">Guess</button>
+            </div>
+            
+            <div class="scoreBoard">
+
+                <p id="outputText" class="output-text">
+                </p>
+                <p id="attempNum" class="output-text">
+                    
+                </p>
+                <h3 class="scored">Current Score: <span id="score">0</span></h3>
+                <h3 class="scored">High Score: <span id="highScore">0</span></h3>
+            </div>
+            <div class="scores">
+                <button class="reset" onclick="reset()">Reset</button>
+                <button class="hint" onclick="showHint()">Hint</button>
+            </div>
+        </div>
+        
     </div>
     
 </body>
