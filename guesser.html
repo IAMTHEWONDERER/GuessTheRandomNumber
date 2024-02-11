@@ -131,7 +131,7 @@ document.getElementById('playerId').addEventListener('submit' , (event) => {
 
                 event.preventDefault();
                 // uncoment the next line to see the random number generated in the web page 
-                outputText.textContent =`set :${randomNumber} tries: ${tries}`
+                // outputText.textContent =`set :${randomNumber} tries: ${tries}`
                 tryNumber.addEventListener('click' , (event) => {
                     const numberTried = parseInt(document.getElementById('input-box').value);
                     if (isNaN(numberTried)){
@@ -186,7 +186,7 @@ document.getElementById('playerId').addEventListener('submit' , (event) => {
      document.getElementById('guessText').textContent = `Guess a random number between 1 and ${n}`;
      document.getElementById('nextLevelBtn').style.display = 'none'; // Hide next level button after progressing
                 // uncoment the next line to see the random number generated in the web page
-                outputText.textContent =`set :${randomNumber} tries: ${tries}`     
+                // outputText.textContent =`set :${randomNumber} tries: ${tries}`     
 });
     }
     
