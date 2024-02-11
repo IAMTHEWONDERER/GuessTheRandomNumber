@@ -6,24 +6,13 @@ const { log } = require('console');
 const { json } = require('stream/consumers');
 
 
-let userNum;
-let n = 10; 
-let attempt = 3;
-let score = 0;
-let highScore = 0;
-let randomNumber = Math.floor(Math.random() * n) + 1;
+
 const port = 3000;
 
 
 
 
    const server = http.createServer((req , res ) => {
-
-    console.log('Here is the URL :' ,req.url);
-    console.log('Here is the METHODE :' ,req.method);
-
-
-
     // const parsedUrl = url.parse(req.url, true);
     if (req.method === 'GET') {
         if (req.url === '/' || req.url === '/guesser.html') {
@@ -74,7 +63,7 @@ const port = 3000;
                     playerCheck = playersList.filter(player => player.name == newPlayer.name && player.pass == newPlayer.pass )
                     if (playerCheck.length == 0 ){
                      res.writeHead(200, { 'Content-Type': 'application/json' });
-                     console.log('player adde ' ,newPlayer);
+                     console.log('player added ' ,newPlayer);
                      res.end(JSON.stringify(newPlayer));
                     playersList.push(newPlayer);
                    
@@ -106,6 +95,53 @@ const port = 3000;
            } )
 
             })
+            
+        } else if (req.url === '/updateHighScore'){
+            //receive the updated high score and push it into the player's object
+            let body = '';
+            req.on('data', (chunk) => {
+                body += chunk.toString(); 
+            });
+        
+            req.on('end', () => {
+                console.log('Received request body:', body);
+                res.writeHead(200, {'Content-Type': 'text/plain'});
+                res.end('Received request successfully!\n');
+
+                const { name, pass , highScore } = JSON.parse(body);
+                const jsonFilePath = path.join(__dirname, 'players.json');
+                fs.readFile(jsonFilePath , (err , data) => {
+                    if (err) {
+                        console.error('Error reading file:', err);
+                        return;
+                    }else {
+                        let playersList = JSON.parse(data);
+                        const PlayerToUpdate = {name , pass , highScore};
+                        const index = playersList.findIndex(player => player.name === PlayerToUpdate.name);
+                        if (index !== -1) {
+                            console.log('player found');
+                            playersList[index].highScore = PlayerToUpdate.highScore; // Update the highScore 
+                        } else {
+                            console.log('Player not found');
+                            return;
+                        }
+
+                        //save the data 
+                        fs.writeFile(jsonFilePath, JSON.stringify(playersList), 'utf8', (err) => {
+                            if (err) {
+                                console.error('Error writing file:', err);
+                                return;
+                            }
+                            console.log('File updated successfully');
+                        });
+
+
+
+
+                    }
+                })
+
+            });
             
         }
     }

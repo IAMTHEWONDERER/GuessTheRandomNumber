@@ -65,7 +65,6 @@
      let n = 10;
     let tries = 0 ; 
    let randomNumber =  generateRandomNumber(n);
-   let  highScore = 0;
    let score = 0 ;
 // the function that generates a random number based on the level the user reached
    function generateRandomNumber(max) {
@@ -78,13 +77,38 @@ function updateHighScore(score) {
     document.getElementById('highScore').innerText = highScore;
 }
 
+
+//linch the game after creating a new user or fetch the high score on an exisiting user
 document.getElementById('playerId').addEventListener('submit' , (event) => {
     event.preventDefault();
-    const name = document.getElementById('name').value;
-    const pass = document.getElementById('passWord').value
+    let  highScore = 0;
+
+    let  name = document.getElementById('name').value;
+    let  pass = document.getElementById('passWord').value
     const playerData = { name, pass , highScore };
     lunchGame();
- 
+
+    //update the high score of a player beaten his last one 
+    async function updatePlayerHighScore(){
+        const playerToUpdate = { name, pass, highScore };
+
+    try {
+        const response = await fetch('/updateHighScore', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(playerToUpdate)
+        });
+
+        if (response.ok) {
+            console.log('Player high score updated successfully!');
+        } else {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }}
 
     async function lunchGame(){
         try{
@@ -96,14 +120,17 @@ document.getElementById('playerId').addEventListener('submit' , (event) => {
             document.getElementById('thinkOfNumber').innerHTML =`<button type="submit" id="setNumberToGuess">click and I will think of a number that you have to guess</button>`;
             const setRandomNumber = document.getElementById('thinkOfNumber');
             const  tryNumber = document.getElementById('guessBtn');
+            // on the click of the set random button the random number will be geneerated and the game is lunched
+
             setRandomNumber.addEventListener('click' , (event) =>{
+             //make the buttonthat generates the random number desapered after the generation
                 setRandomNumber.style.display = 'none';
                 document.getElementById('nextLevelBtn').style.display = 'none'; // Hide next level button
                  tries = 0;
                randomNumber = generateRandomNumber(n);
 
                 event.preventDefault();
-
+                // uncoment the next line to see the random number generated in the web page 
                 outputText.textContent =`set :${randomNumber} tries: ${tries}`
                 tryNumber.addEventListener('click' , (event) => {
                     const numberTried = parseInt(document.getElementById('input-box').value);
@@ -130,10 +157,18 @@ document.getElementById('playerId').addEventListener('submit' , (event) => {
                 }else if (tries == 3) {
 
                     outputText.textContent =`Yikes!! you ran out of tries . tries :${tries}`
+                    if (highScore > response.highScore){
+                        updatePlayerHighScore();
+                        }
                     document.getElementById('restart').innerHTML +=`<button type="submit" id="restart">re-start</button>`;
-                    document.querySelector('#restart').onclick = function(){
+                    document.querySelector('#restart').onclick =  function(){
+                        n = 10 ;
+                        document.getElementById('guessText').textContent = `Guess a random number between 1 and ${n}`;
+                        score = 0 ;
+                        document.getElementById('score').innerText = 0;
                         setRandomNumber.style.display = 'inline-block';
                         document.getElementById('restart').style.display = 'none';
+                
                     }
                     
 
@@ -143,15 +178,15 @@ document.getElementById('playerId').addEventListener('submit' , (event) => {
                 console.error('Error:', error);
 
         }
- document.getElementById('nextLevelBtn').addEventListener('click', () => {
+       document.getElementById('nextLevelBtn').addEventListener('click', () => {
 
-   n *= 2; // Double the level for the next round
-    tries = 0;
-    randomNumber = generateRandomNumber(n);
-    document.getElementById('guessText').textContent = `Guess a random number between 1 and ${n}`;
-    document.getElementById('nextLevelBtn').style.display = 'none'; // Hide next level button after progressing
-    outputText.textContent =`set :${randomNumber} tries: ${tries}`
-
+       n *= 2; // Double the level for the next round
+      tries = 0;
+      randomNumber = generateRandomNumber(n);
+     document.getElementById('guessText').textContent = `Guess a random number between 1 and ${n}`;
+     document.getElementById('nextLevelBtn').style.display = 'none'; // Hide next level button after progressing
+                // uncoment the next line to see the random number generated in the web page
+                outputText.textContent =`set :${randomNumber} tries: ${tries}`     
 });
     }
     
