@@ -1,46 +1,119 @@
+const http = require('http');
+const fs = require('fs');
+const url = require('url')
+const path = require('path');
+const { log } = require('console');
+const { json } = require('stream/consumers');
+
+
 let userNum;
 let n = 10; 
 let attempt = 3;
 let score = 0;
 let highScore = 0;
 let randomNumber = Math.floor(Math.random() * n) + 1;
+const port = 3000;
 
-function generateRandomNumber() {
-    userNum = parseInt(document.getElementById("input-box").value);
-    if (isNaN(userNum)) {
-        alert("Please enter a number to start");
-        return;
-    }
-    if (attempt > 0) {
-        if (randomNumber < userNum) {
-            outputText.textContent = "Enter a number lower than " + userNum;
-            attempt--;
-        } else if (randomNumber > userNum) {
-            outputText.textContent = "Enter a number higher than " + userNum;
-            attempt--;
-        } else if (randomNumber === userNum) {
-            score += (3 - attempt) * n; // Calculate score based on total attempts
-            attempt = 3; // Reset attempts to 3
-            outputText.textContent = "Congratulations, you have successfully guessed the number";
-            n = n * 2;
-            randomNumber = Math.floor(Math.random() * n) + 1;
-            document.getElementById("nValue").textContent = n;
-            document.getElementById("score").textContent = score;
-            highScore == score;
-                document.getElementById("highScore").textContent = highScore;
-            return;
+
+
+
+   const server = http.createServer((req , res ) => {
+
+    console.log('Here is the URL :' ,req.url);
+    console.log('Here is the METHODE :' ,req.method);
+
+
+
+    // const parsedUrl = url.parse(req.url, true);
+    if (req.method === 'GET') {
+        if (req.url === '/' || req.url === '/guesser.html') {
+            const filePath = path.join(__dirname, 'guesser.html');
+            console.log('FILEPATH', filePath);
+            fs.readFile(filePath, (err, data) => {
+                if (err) {
+                    res.writeHead(500, { 'Content-Type': 'text/plain' });
+                    res.end('Internal Server Error');
+                } else {
+                    res.writeHead(200, { 'Content-Type': 'text/html' });
+                    res.end(data);
+                }
+            });
         }
-    } else {
-        outputText.textContent = "You have run out of attempts. The number was " + randomNumber;
+         else if (req.url === '/guesser.css') {
+            const filePath = path.join(__dirname, 'guesser.css');
+            fs.readFile(filePath, (err, data) => {
+                if (err) {
+                    res.writeHead(500, { 'Content-Type': 'text/plain' });
+                    res.end('Internal Server Error');
+                } else {
+                    res.writeHead(200, { 'Content-Type': 'text/css' });
+                    res.end(data);
+                }
+            });
+        }
+    }else if (req.method === 'POST'){
+        if (req.url === '/playerData'){
+            let body = '';
+            req.on('data', chunk => {
+                body += chunk.toString();
+            });
+            req.on('end' , () => {
+                console.log('received players data ', body)
+                // res.end('received');
+           const { name, pass , highScore } = JSON.parse(body);
+           const jsonFilePath = path.join(__dirname, 'players.json');
+           fs.readFile(jsonFilePath , (err , data) =>{
+            if (err){
+                console.error('Error reading file:', err);
+                res.writeHead(500, { 'Content-Type': 'text/plain' });
+                res.end('Internal Server Error');
+            }else{
+                try{
+                    const playersList = JSON.parse(data);
+                    const newPlayer = {name , pass , highScore};
+                    playerCheck = playersList.filter(player => player.name == newPlayer.name && player.pass == newPlayer.pass )
+                    if (playerCheck.length == 0 ){
+                     res.writeHead(200, { 'Content-Type': 'application/json' });
+                     console.log('player adde ' ,newPlayer);
+                     res.end(JSON.stringify(newPlayer));
+                    playersList.push(newPlayer);
+                   
+                    const playersListJson = JSON.stringify(playersList);
+                    fs.writeFile(jsonFilePath , playersListJson , (err) => {
+                        if (err) {
+                            console.error('Error writing file:', err);
+                            res.writeHead(500, { 'Content-Type': 'text/plain' });
+                            res.end('Internal Server Error');
+                        }else {
+                            console.log('player added successfully!');
+                          
+                        }
+                    })
+                }else {
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    console.log('player exist' , playerCheck);
+                    res.end(JSON.stringify(playerCheck[0]))
+                }
+                    
+
+                }catch(error){
+                    console.error('Error parsing JSON:', error);
+                    res.writeHead(500, { 'Content-Type': 'text/plain' });
+                    res.end('Error parsing JSON');
+
+                }
+            }
+           } )
+
+            })
+            
+        }
     }
-}
-function reset() {
-    attempt = 3;
-    score = 0;
-    n = 10;
-    randomNumber = Math.floor(Math.random() * n) + 1;
-    document.getElementById("nValue").textContent = n;
-    outputText.textContent = "Guess a random number between 1 and " + n;
-    document.getElementById("score").textContent = 0;
-}
-generateRandomNumber();
+})
+
+
+
+
+server.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}/`);
+});

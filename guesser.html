@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RNGguesser</title>
     <link rel="stylesheet" href="guesser.css">
-    <script src="guesser.js"></script>
 </head>
 <body>
     <div class="container">
@@ -18,6 +17,19 @@
                    <li class="rules para">you also gain more points based on how hard the level isyou also gain more points based on how hard the level is</li>
                 </ol>
                 <h4 class="Happy">Happy Guessing!</h4>
+
+                <h1>player:</h1>
+                <form id="playerId">
+                    <label for="name">Name:</label><br>
+                    <input placeholder="enter you name and click play" type="text" id="name" name="name" required><br>
+                    <label for="passWord">password:</label><br>
+                    <input placeholder="please enter a password" type="password" id="passWord" name="password" required><br><br>
+                    <button type="submit">play</button>
+                </form>
+
+                <div id="message"></div>
+
+
             </div>
         </div>
         <div class="interface">
@@ -25,7 +37,7 @@
             <h3 class="textElement" id="guessText">Guess a random number between 1 and  <span id="nValue">&nbsp; 10 </span></h3>     
                    <div class="row">
                 <input type="text" id="input-box" placeholder="Guess the number">
-                <button onclick="generateRandomNumber()" class="btn">Guess</button>
+                <button type="submit" id="guessBtn" >Guess</button>
             </div>
             
             <div class="scoreBoard">
@@ -38,10 +50,85 @@
                 <p id="outputText" class="output-text">
                 </p>
                 <p id="attempNum" class="output-text">
+                    <div id="thinkOfNumber"></div>
+                    <div id="restart"></div>
+
             </div>
         </div>
+
         
     </div>
     
+<script >
+document.getElementById('playerId').addEventListener('submit' , (event) => {
+    event.preventDefault();
+    const name = document.getElementById('name').value;
+    const pass = document.getElementById('passWord').value
+    const highScore = 0
+    const playerData = { name, pass , highScore };
+    lunchGame();
+ 
+
+    async function lunchGame(){
+        try{
+            const data = await fetch ('/playerData' , {method:'POST' , body: JSON.stringify(playerData)})
+            const response = await data.json();
+            document.getElementById('message').innerText =`Hi! ${response.name}  `;
+            document.getElementById('highScore').innerText =`${response.highScore}`;
+            document.getElementById('thinkOfNumber').innerHTML =`<button type="submit" id="setNumberToGuess">click and I will think of a number that you have to guess</button>`;
+            const setRandomNumber = document.getElementById('thinkOfNumber');
+            const  tryNumber = document.getElementById('guessBtn');
+            setRandomNumber.addEventListener('click' , (event) =>{
+                setRandomNumber.style.display = 'none';
+
+                event.preventDefault();
+                let n = 10;
+                let tries = 0 ; 
+                let randomNumber = Math.floor(Math.random() * n) + 1;
+                outputText.textContent =`set :${randomNumber} tries: ${tries}`
+                tryNumber.addEventListener('click' , (event) => {
+                    const numberTried = parseInt(document.getElementById('input-box').value);
+                    if (isNaN(numberTried)){
+                        alert("Please enter a number to start");
+                              return;
+                    }
+                    tries ++ ;
+                if (tries < 5 ){
+                    let higher = numberTried > randomNumber ? true : false ;
+                    if (numberTried ==  randomNumber ) {
+                        outputText.textContent = `Congratulations, you have successfully guessed the number , number of tries = ${tries} random:${randomNumber}`;
+                    }else if (higher){
+                        outputText.textContent =`try a lower value than ${numberTried} tries: ${tries} random:${randomNumber}`;
+                    }else {
+                        outputText.textContent =`try a higher value than ${numberTried} tries : ${tries} random:${randomNumber}`;
+                    }
+                }else {
+                    outputText.textContent =`Yikes!! you ran out of tries . tries :${tries}`
+                    document.getElementById('restart').innerHTML +=`<button type="submit" id="restart">re-start</button>`;
+                    document.querySelector('#restart').onclick = function(){
+                        setRandomNumber.style.display = 'inline-block';
+                        document.getElementById('restart').style.display = 'none';
+                    }
+                    
+
+                }
+                })
+            }
+            )
+
+
+
+
+
+        }catch{
+
+        }
+    }
+    
+})
+
+</script>
+
+ 
 </body>
 </html>
